@@ -1,0 +1,11 @@
+num_workers: 0
+logging:
+  level: error
+metrics:
+  - type: test-metrics
+    port: 9000
+services:
+  - name: test
+    module: test/utils/simple_server.js
+    conf:
+      port: 12345

@@ -5,6 +5,8 @@ const preq = require('preq');
 const TestServer = require('../TestServer');
 const cluster = require('cluster');
 const assert = require('assert');
+const Logger = require('../../lib/logger');
+const sinon = require('sinon');
 
 describe('service-runner tests', () => {
     it('Must start and stop a simple service, no workers', () => {
@@ -181,6 +183,37 @@ describe('service-runner tests', () => {
             );
         })
         .finally(() => server.stop());
+    });
+
+    it('must not log error when no metrics are included', () => {
+        const sandbox = sinon.createSandbox();
+        const logger = new Logger({ level: 'error', name: 'test-metrics' } );
+        const server = new TestServer(`${__dirname}/../utils/simple_config_no_metrics.yaml`);
+
+        sandbox.spy(logger);
+        server.setLogger(logger);
+
+        return server.start()
+            .then(() => {
+                assert.ok(logger.log.neverCalledWith('error/metrics', "No such metrics client: 'undefined'"));
+
+            })
+            .finally(() => server.stop());
+    });
+
+    it('must log error when an unsupported metric type is used', () => {
+        const sandbox = sinon.createSandbox();
+        const logger = new Logger({ level: 'error', name: 'test-metrics' } );
+        const server = new TestServer(`${__dirname}/../utils/simple_config_unsupported_metric.yaml`);
+
+        sandbox.spy(logger);
+        server.setLogger(logger);
+
+        return server.start()
+            .then(() => {
+                assert.ok(logger.log.calledWith('error/metrics', "No such metrics client: 'test-metrics'"));
+            })
+            .finally(() => server.stop());
     });
 
 }, 'service-runner tests');

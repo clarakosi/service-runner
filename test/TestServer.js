@@ -17,6 +17,10 @@ class TestServer {
         this._startupRetriesRemaining = 3;
     }
 
+    setLogger(logger) {
+        this._runner.setLogger(logger);
+    }
+
     start() {
         if (this._running) {
             console.log('The test server is already running. Skipping start.');

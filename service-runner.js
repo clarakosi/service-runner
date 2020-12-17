@@ -56,6 +56,9 @@ class ServiceRunner {
         });
     }
 
+    setLogger(logger) {
+        this._impl.setLogger(logger);
+    }
     static getLogger(loggerConf) { return new Logger(loggerConf); }
     static getMetrics(metricsConf, logger) { return makeMetrics(metricsConf, logger); }
 }
